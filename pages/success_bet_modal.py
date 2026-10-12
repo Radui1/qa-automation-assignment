@@ -9,7 +9,7 @@ from pages.base_page import BasePage
 
 
 class SuccessBetModal(BasePage):
-    """Encapsulates data displayed in the successful bet modal."""
+    """Encapsulate the successful bet receipt."""
 
     TITLE = (By.CSS_SELECTOR, ".modalBody .modalTitle")
     STAKE = (By.ID, "modal-success-stake")
@@ -18,39 +18,15 @@ class SuccessBetModal(BasePage):
     MATCH = (By.ID, "modal-success-match")
     ODDS = (By.ID, "modal-success-odds")
 
-    def get_title(self):
-        """Return the title displayed in the success modal."""
-        return self._text(self.TITLE)
-
-    def get_stake(self):
-        """Return the stake displayed in the receipt."""
-        return self._text(self.STAKE)
-
-    def get_payout(self):
-        """Return the potential payout displayed in the receipt."""
-        return self._text(self.PAYOUT)
-
-    def get_bet_id(self):
-        """Return the bet ID displayed in the receipt."""
-        return self._text(self.BET_ID)
-
-    def get_match(self):
-        """Return the match information displayed in the receipt."""
-        return self._text(self.MATCH)
-
-    def get_odds(self):
-        """Return the odds displayed in the receipt."""
-        return self._text(self.ODDS)
-
     def capture_receipt(self) -> BetReceipt:
-        """Return the visible receipt details as a value object."""
+        """Return the visible receipt as a domain value object."""
         return BetReceipt(
-            title=self.get_title(),
+            title=self._text(self.TITLE),
             summary=BetSummary(
-                match_text=self.get_match(),
-                stake_amount=parse_amount(self.get_stake()),
-                payout_amount=parse_amount(self.get_payout())
+                match_text=self._text(self.MATCH),
+                stake_amount=parse_amount(self._text(self.STAKE)),
+                payout_amount=parse_amount(self._text(self.PAYOUT)),
             ),
-            odds=parse_amount(self.get_odds()),
-            bet_id=self.get_bet_id()
+            odds=parse_amount(self._text(self.ODDS)),
+            bet_id=self._text(self.BET_ID),
         )
