@@ -6,7 +6,8 @@ The project contains:
 - One end-to-end UI test for the critical bet placement journey
 - One API test for a critical betting business rule
 - Shared pytest fixtures
-- Page/component objects for UI interactions
+- Shared domain models for bet summaries and outcomes
+- Page/component objects for UI interactions with shared Selenium helpers
 - API client utilities
 - Environment-based configuration
 
@@ -31,8 +32,14 @@ selenium_python/
 │   ├── __init__.py
 │   └── settings.py
 │
+├── domain/
+│   ├── __init__.py
+│   └── betting.py
+│
 ├── pages/
 │   ├── __init__.py
+│   ├── base_page.py
+│   ├── bet_slip.py
 │   ├── matches_page.py
 │   └── success_bet_modal.py
 │

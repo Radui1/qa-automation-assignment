@@ -3,80 +3,54 @@ Component object for the successful bet receipt modal.
 """
 
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+
+from domain.betting import BetReceipt, BetSummary, parse_amount
+from pages.base_page import BasePage
 
 
-DEFAULT_WAIT_TIMEOUT = 10
-
-
-class SuccessBetModal:
+class SuccessBetModal(BasePage):
     """Encapsulates data displayed in the successful bet modal."""
 
-    def __init__(self, driver):
-        self.driver = driver
+    TITLE = (By.CSS_SELECTOR, ".modalBody .modalTitle")
+    STAKE = (By.ID, "modal-success-stake")
+    PAYOUT = (By.ID, "modal-success-payout")
+    BET_ID = (By.ID, "modal-success-bet-id")
+    MATCH = (By.ID, "modal-success-match")
+    ODDS = (By.ID, "modal-success-odds")
 
     def get_title(self):
         """Return the title displayed in the success modal."""
-        title = WebDriverWait(
-            self.driver,
-            DEFAULT_WAIT_TIMEOUT
-        ).until(
-            EC.visibility_of_element_located(
-                (By.CSS_SELECTOR, ".modalBody .modalTitle")
-            )
-        )
-
-        return title.text
+        return self._text(self.TITLE)
 
     def get_stake(self):
         """Return the stake displayed in the receipt."""
-        stake = WebDriverWait(
-            self.driver,
-            DEFAULT_WAIT_TIMEOUT
-        ).until(
-            EC.visibility_of_element_located(
-                (By.ID, "modal-success-stake")
-            )
-        )
-
-        return stake.text
+        return self._text(self.STAKE)
 
     def get_payout(self):
         """Return the potential payout displayed in the receipt."""
-        payout = WebDriverWait(
-            self.driver,
-            DEFAULT_WAIT_TIMEOUT
-        ).until(
-            EC.visibility_of_element_located(
-                (By.ID, "modal-success-payout")
-            )
-        )
-
-        return payout.text
+        return self._text(self.PAYOUT)
 
     def get_bet_id(self):
         """Return the bet ID displayed in the receipt."""
-        bet_id = WebDriverWait(
-            self.driver,
-            DEFAULT_WAIT_TIMEOUT
-        ).until(
-            EC.visibility_of_element_located(
-                (By.ID, "modal-success-bet-id")
-            )
-        )
-
-        return bet_id.text
+        return self._text(self.BET_ID)
 
     def get_match(self):
         """Return the match information displayed in the receipt."""
-        match = WebDriverWait(
-            self.driver,
-            DEFAULT_WAIT_TIMEOUT
-        ).until(
-            EC.visibility_of_element_located(
-                (By.ID, "modal-success-match")
-            )
-        )
+        return self._text(self.MATCH)
 
-        return match.text
+    def get_odds(self):
+        """Return the odds displayed in the receipt."""
+        return self._text(self.ODDS)
+
+    def capture_receipt(self) -> BetReceipt:
+        """Return the visible receipt details as a value object."""
+        return BetReceipt(
+            title=self.get_title(),
+            summary=BetSummary(
+                match_text=self.get_match(),
+                stake_amount=parse_amount(self.get_stake()),
+                payout_amount=parse_amount(self.get_payout())
+            ),
+            odds=parse_amount(self.get_odds()),
+            bet_id=self.get_bet_id()
+        )

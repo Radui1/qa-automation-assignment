@@ -1,13 +1,10 @@
-"""
-Shared pytest fixtures for UI and API tests.
-"""
-
-from datetime import date
+"""Shared pytest fixtures for UI and API tests."""
 
 import pytest
 from selenium import webdriver
 
 from api.api_client import ApiClient
+from pages.matches_page import MatchesPage
 
 
 @pytest.fixture
@@ -27,14 +24,21 @@ def api_client():
 
 
 @pytest.fixture
+def matches_page(driver):
+    """Provide the Matches page object for UI interactions."""
+    return MatchesPage(driver)
+
+
+@pytest.fixture
+def funded_balance(api_client):
+    """Reset the test user's balance and return the available amount."""
+    return api_client.reset_balance()
+
+
+@pytest.fixture
 def valid_match(api_client):
     """Return the first match whose kickoff date is today or later."""
-    matches = api_client.get_matches()
-
-    for match in matches:
-        match_date = date.fromisoformat(match["kickoffDate"])
-
-        if match_date >= date.today():
-            return match
-
-    pytest.fail("No upcoming match found")
+    try:
+        return api_client.find_first_upcoming_match()
+    except LookupError as exc:
+        pytest.fail(str(exc))
